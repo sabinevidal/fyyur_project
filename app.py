@@ -1,4 +1,4 @@
-#----------------------------------------------------------------------------#
+# ----------------------------------------------------------------------------#
 # Imports
 #----------------------------------------------------------------------------#
 
@@ -282,7 +282,7 @@ def create_venue_submission():
             db.session.commit()
             Venue.insert(new_venue)
     # on successful db insert, flash success
-            flash('Venue ' + request.form['name'] + ' was successfully listed!')
+            flash('Venue ' + request.form['name'] + ' was successfully listed!')   
         except SQLAlchemyError as e:
             flash('An error occurred. Venue ' + request.form['name'] + ' could not be listed.')
         except:
