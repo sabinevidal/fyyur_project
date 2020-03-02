@@ -44,6 +44,7 @@ class Venue(db.Model):
     website = db.Column(db.String(120))
     genres = db.Column(db.String(120), nullable=False)
     seeking_talent = db.Column(db.Boolean, nullable=False, default=False)
+    seeking_description = db.Column(db.String(200))
     upcoming_shows = db.Column(db.Integer, nullable=False)
     past_shows = db.Column(db.Integer, nullable=False)
     show = db.relationship('Show', backref='Venue', lazy=True)
@@ -114,6 +115,7 @@ def index():
 def venues():
   # TODO: replace with real venues data.
   #       num_shows should be aggregated based on number of upcoming shows per venue.
+    
   data=[{
     "city": "San Francisco",
     "state": "CA",
@@ -248,13 +250,38 @@ def create_venue_form():
 def create_venue_submission():
   # TODO: insert form data as a new Venue record in the db, instead
   # TODO: modify data to be the data object returned from db insertion
+    form = VenueForm(request.form)
 
+    if form.validate(): 
+        try: 
+            seeking_talent = False 
+            seeking_description = ''
+            if 'seeking_talent' in request.form:
+                seeking_talent = request.form['seeking_talent'] == 'y'
+            if 'seeking_description' in request.form:
+                seeking_description = request.form['seeking_description']
+            new_venue = Venue (
+                name = request.form['name'],
+                city = request.form['city'],
+                state = request.form['state'],
+                address = request.form['address'],
+                phone = request.form['phone'],
+                image_link = request.form['image_link'],
+                facebook_link = request.form['facebook_link'],
+                website = request.form['website'],
+                genres = request.form['genres'],
+                seeking_talent = seeking_talent,
+                seeking_description = seeking_description
+            )
+            Venue.insert(new_venue)
   # on successful db insert, flash success
-  flash('Venue ' + request.form['name'] + ' was successfully listed!')
+            flash('Venue ' + request.form['name'] + ' was successfully listed!')
+        except SQLAlchemyError as e:
+            flash('An error occurred. Venue ' + request.form['name'] + ' could not be listed.')
   # TODO: on unsuccessful db insert, flash an error instead.
   # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
   # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
-  return render_template('pages/home.html')
+            return render_template('pages/home.html')
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
