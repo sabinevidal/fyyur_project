@@ -47,7 +47,10 @@ class Venue(db.Model):
     seeking_description = db.Column(db.String(200))
     upcoming_shows = db.Column(db.Integer, nullable=False)
     past_shows = db.Column(db.Integer, nullable=False)
-    show = db.relationship('Show', backref='Venue', lazy=True)
+    ##relationships between Venue and show
+    
+    show_ven = db.relationship('Show', backref='Venue', lazy=True)
+    past_shows_count = db.Column(db.Integer)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -67,21 +70,20 @@ class Artist(db.Model):
     seeking_description = db.Column(db.String(200))
     upcoming_shows = db.Column(db.Integer, nullable=False)
     past_shows = db.Column(db.Integer, nullable=False)
-    show = db.relationship('Show', backref='Artist', lazy=True)
+
+    # relationships between Artist and Show
+    show_art = db.relationship('Show', backref='Artist', lazy=True)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 class Show(db.Model):
     __tablename__ = 'Show'
-
-    id = db.Column(db.Integer, primary_key=True)
-    start_time = db.Column(db.DateTime, nullable=False)
-    artist_name = db.Column(db.String(), db.ForeignKey('Artist.name'), nullable=False)
-    artist_image_link = db.Column(db.String(500), db.ForeignKey('Artist.image_link'))
-    artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'))
-    venue_name = db.Column(db.String(), db.ForeignKey('Venue.name'))
-    venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'))
+    
+    venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), primary_key=True)
+    artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), primary_key=True)
+    start_time = db.Column(db.DateTime, nullable=False)    
+   
 
 
 
@@ -115,29 +117,32 @@ def index():
 def venues():
   # TODO: replace with real venues data.
   #       num_shows should be aggregated based on number of upcoming shows per venue.
-    
-  data=[{
-    "city": "San Francisco",
-    "state": "CA",
-    "venues": [{
-      "id": 1,
-      "name": "The Musical Hop",
-      "num_upcoming_shows": 0,
-    }, {
-      "id": 3,
-      "name": "Park Square Live Music & Coffee",
-      "num_upcoming_shows": 1,
-    }]
-  }, {
-    "city": "New York",
-    "state": "NY",
-    "venues": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }]
-  return render_template('pages/venues.html', areas=data);
+    areas = Venue.query.order_by(Venue.city).all()
+    return render_template('pages/venues.html', areas=areas);
+
+
+#   data=[{
+#     "city": "San Francisco",
+#     "state": "CA",
+#     "venues": [{
+#       "id": 1,
+#       "name": "The Musical Hop",
+#       "num_upcoming_shows": 0,
+#     }, {
+#       "id": 3,
+#       "name": "Park Square Live Music & Coffee",
+#       "num_upcoming_shows": 1,
+#     }]
+#   }, {
+#     "city": "New York",
+#     "state": "NY",
+#     "venues": [{
+#       "id": 2,
+#       "name": "The Dueling Pianos Bar",
+#       "num_upcoming_shows": 0,
+#     }]
+#   }]
+ 
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
@@ -281,7 +286,7 @@ def create_venue_submission():
   # TODO: on unsuccessful db insert, flash an error instead.
   # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
   # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
-            return render_template('pages/home.html')
+    return render_template('pages/home.html')
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
