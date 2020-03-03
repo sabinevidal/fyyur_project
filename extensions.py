@@ -1,3 +1,3 @@
-from flask_wtf import CsrfProtect
+from flask_wtf import CSRFProtect
 
-csrf = CsrfProtect()
+csrf = CSRFProtect()
