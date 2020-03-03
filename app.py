@@ -37,7 +37,7 @@ class Venue(db.Model):
     __tablename__ = 'Venue'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String())
+    name = db.Column(db.String(), nullable=False, unique=True)
     city = db.Column(db.String(120))
     state = db.Column(db.String(120))
     address = db.Column(db.String(120))
@@ -56,18 +56,19 @@ class Venue(db.Model):
     past_shows_count = db.Column(db.Integer)
 
 
+
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 class Artist(db.Model):
     __tablename__ = 'Artist'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String())
+    name = db.Column(db.String(), nullable=False, unique=True)
     city = db.Column(db.String(120))
     state = db.Column(db.String(120))
     phone = db.Column(db.String(120))
     genres = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
+    image_link = db.Column(db.String(500), nullable=False, unique=True)
     facebook_link = db.Column(db.String(120))
     website = db.Column(db.String(120))
     seeking_venue = db.Column(db.Boolean, nullable=False, default=False)
@@ -75,6 +76,7 @@ class Artist(db.Model):
     upcoming_shows = db.Column(db.Integer, nullable=False)
     past_shows = db.Column(db.Integer, nullable=False)
     
+
     # relationships between Artist and Show
     show_art = db.relationship('Show', backref='Artist', lazy=True)
 
@@ -87,7 +89,6 @@ class Show(db.Model):
     venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), primary_key=True)
     artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), primary_key=True)
     start_time = db.Column(db.DateTime, nullable=False) 
-
 
 
 #----------------------------------------------------------------------------#
@@ -118,6 +119,7 @@ def index():
 
 @app.route('/venues')
 def venues():
+
     # TODO: replace with real venues data.
     #       num_shows should be aggregated based on number of upcoming shows per venue.
     # Getting list of states and cities 
@@ -146,7 +148,6 @@ def venues():
         result.append(group)
     return render_template('pages/venues.html', areas=result)
     
-
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
@@ -206,6 +207,7 @@ def create_venue_form():
 
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
+
     # TODO: insert form data as a new Venue record in the db, instead
     # TODO: modify data to be the data object returned from db insertion
     # Create venue with user input
@@ -245,6 +247,7 @@ def create_venue_submission():
         flash(form.errors)
         flash('An error occurred due to form validation.' + request.form['name']+ ' could not be listed.')
    
+
     return render_template('pages/home.html')
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])

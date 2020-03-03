@@ -1,3 +1,4 @@
+
 # This file must be used using `. bin/activate.fish` *within a running fish ( http://fishshell.com ) session*.
 # Do not run it directly.
 
@@ -5,15 +6,19 @@ function deactivate -d 'Exit virtualenv mode and return to the normal environmen
     # reset old environment variables
     if test -n "$_OLD_VIRTUAL_PATH"
         set -gx PATH $_OLD_VIRTUAL_PATH
+
         set -e _OLD_VIRTUAL_PATH
     end
 
     if test -n "$_OLD_VIRTUAL_PYTHONHOME"
+
         set -gx PYTHONHOME $_OLD_VIRTUAL_PYTHONHOME
+
         set -e _OLD_VIRTUAL_PYTHONHOME
     end
 
     if test -n "$_OLD_FISH_PROMPT_OVERRIDE"
+
         # Set an empty local `$fish_function_path` to allow the removal of `fish_prompt` using `functions -e`.
         set -l fish_function_path
 
@@ -30,6 +35,7 @@ function deactivate -d 'Exit virtualenv mode and return to the normal environmen
         # Self-destruct!
         functions -e pydoc
         functions -e deactivate
+
     end
 end
 
@@ -40,6 +46,7 @@ set -gx VIRTUAL_ENV "/home/sabine/Documents/udacity/fyyur_project/my_python_env"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH
+
 
 # Unset `$PYTHONHOME` if set.
 if set -q PYTHONHOME
@@ -56,6 +63,7 @@ if test -z "$VIRTUAL_ENV_DISABLE_PROMPT"
     functions -c fish_prompt _old_fish_prompt
 
     function fish_prompt
+
         # Save the current $status, for fish_prompts that display it.
         set -l old_status $status
 
@@ -70,6 +78,7 @@ if test -z "$VIRTUAL_ENV_DISABLE_PROMPT"
         # Restore the original $status
         echo "exit $old_status" | source
         _old_fish_prompt
+
     end
 
     set -gx _OLD_FISH_PROMPT_OVERRIDE "$VIRTUAL_ENV"
