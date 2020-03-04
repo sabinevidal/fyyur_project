@@ -266,7 +266,7 @@ def create_venue_submission():
             seeking_description=request.form.get('seeking_description')
         )
         # Checking if venue is seeking an artist
-        new_venue.seeking_talent = True if request.form['seeking_talent'] == 'true' else False
+        new_venue.seeking_talent = True if request.form['seeking_talent'] == 'Yes' else False
         new_venue.seeking_description = request.form['seeking_description']
         db.session.add(new_venue)
         db.session.commit()
@@ -376,7 +376,7 @@ def show_artist(artist_id):
     details = {           
         "id": artist.id,
         "name": artist.name,
-        "genres": artist.genres.split(';'),
+        "genres": artist.genres,
         "city": artist.city,
         "state": artist.state,
         "phone": artist.phone,
@@ -446,7 +446,7 @@ def create_artist_submission():
             phone=request.form.get('phone'),
             facebook_link=request.form.get('facebook_link'),
             website=request.form.get('website'),
-            genres=request.form.getlist('genres'),
+            genres=request.form.get('genres'),
             seeking_venue=request.form.get('seeking_venue'),
             seeking_description=request.form.get('seeking_description')
         )
@@ -475,30 +475,40 @@ def create_artist_submission():
 #  ----------------------------------------------------------------
 @app.route('/artists/<int:artist_id>/edit', methods=['GET'])
 def edit_artist(artist_id):
-  form = ArtistForm()
+    form = ArtistForm()
   
-  # get artist by ID
-  artist = Artist.query.filter_by(id=artist_id).first()
+    # get artist by ID
+    artist = Artist.query.filter_by(id=artist_id).first()
   
-  # artist data
-  artist={
-    "id": artist.id,
-    "name": artist.name,
-    "genres": artist.genres,
-    "city": artist.city,
-    "state": artist.state,
-    "phone": artist.phone,
-    "website": artist.website,
-    "facebook_link": artist.facebook_link,
-    "seeking_venue": artist.seeking_venue,
-    "seeking_description": artist.seeking_description,
-    "image_link": artist.image_link
-  }
+    # artist data
+    artist={
+        "id": artist.id,
+        "name": artist.name,
+        "genres": artist.genres,
+        "city": artist.city,
+        "state": artist.state,
+        "phone": artist.phone,
+        "website": artist.website,
+        "facebook_link": artist.facebook_link,
+        "seeking_venue": artist.seeking_venue,
+        "seeking_description": artist.seeking_description,
+        "image_link": artist.image_link
+    }
   
-  # TODO: set placeholders in form to current data
+    # TODO: set placeholders in form to current data
+    form.name.process_data(artist['name'])
+    form.city.process_data(artist['city'])
+    form.state.process_data(artist['state'])
+    form.genres.process_data(artist['genres'])
+    form.phone.process_data(artist['phone'])
+    form.website.process_data(artist['website'])
+    form.facebook_link.process_data(artist['facebook_link'])
+    form.seeking_venue.process_data(artist['seeking_venue'])
+    form.seeking_description.process_data(artist['seeking_description'])
+    form.image_link.process_data(artist['image_link'])
+
   
-  
-  return render_template('forms/edit_artist.html', form=form, artist=artist)
+    return render_template('forms/edit_artist.html', form=form, artist=artist)
 
 @app.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
@@ -536,23 +546,41 @@ def edit_artist_submission(artist_id):
 
 @app.route('/venues/<int:venue_id>/edit', methods=['GET'])
 def edit_venue(venue_id):
-  form = VenueForm()
-  venue={
-    "id": 1,
-    "name": "The Musical Hop",
-    "genres": ["Jazz", "Reggae", "Swing", "Classical", "Folk"],
-    "address": "1015 Folsom Street",
-    "city": "San Francisco",
-    "state": "CA",
-    "phone": "123-123-1234",
-    "website": "https://www.themusicalhop.com",
-    "facebook_link": "https://www.facebook.com/TheMusicalHop",
-    "seeking_talent": True,
-    "seeking_description": "We are on the lookout for a local artist to play every two weeks. Please call us.",
-    "image_link": "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60"
-  }
-  # TODO: populate form with values from venue with ID <venue_id>
-  return render_template('forms/edit_venue.html', form=form, venue=venue)
+    form = VenueForm()
+  
+    # get venue by ID
+    venue = Venue.query.filter_by(id=venue_id).first()
+  
+    # venue data
+    venue={
+        "id": venue.id,
+        "name": venue.name,
+        "genres": venue.genres,
+        "city": venue.city,
+        "state": venue.state,
+        "address": venue.address,
+        "phone": venue.phone,
+        "website": venue.website,
+        "facebook_link": venue.facebook_link,
+        "seeking_talent": venue.seeking_talent,
+        "seeking_description": venue.seeking_description,
+        "image_link": venue.image_link
+    }
+  
+    # TODO: set placeholders in form to current data
+    form.name.process_data(venue['name'])
+    form.city.process_data(venue['city'])
+    form.state.process_data(venue['state'])
+    form.genres.process_data(venue['genres'])
+    form.phone.process_data(venue['phone'])
+    form.website.process_data(venue['website'])
+    form.facebook_link.process_data(venue['facebook_link'])
+    form.seeking_talent.process_data(venue['seeking_talent'])
+    form.seeking_description.process_data(venue['seeking_description'])
+    form.image_link.process_data(venue['image_link'])
+ 
+    # TODO: populate form with values from venue with ID <venue_id>
+    return render_template('forms/edit_venue.html', form=form, venue=venue)
 
 
 
