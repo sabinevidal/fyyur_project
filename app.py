@@ -495,7 +495,7 @@ def edit_artist(artist_id):
     "image_link": artist.image_link
   }
   
-  # set placeholders in form to current data
+  # TODO: set placeholders in form to current data
   
   
   return render_template('forms/edit_artist.html', form=form, artist=artist)
