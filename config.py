@@ -10,6 +10,9 @@ DEBUG = True
 
 
 # TODO IMPLEMENT DATABASE URL XX
+
 SQLALCHEMY_DATABASE_URI = 'postgres://username:password@localhost:5432/fyyurapp'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
-WTF_CSRF_CHECK_DEFAULT = False
+# SQLALCHEMY_DATABASE_URI = 'postgres://sabinevidal:password@localhost:5432/fyyurapp'
+# SQLALCHEMY_TRACK_MODIFICATIONS = False
+

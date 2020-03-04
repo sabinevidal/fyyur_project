@@ -38,7 +38,7 @@ class Venue(db.Model):
     __tablename__ = 'Venue'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String())
+    name = db.Column(db.String(), nullable=False, unique=True)
     city = db.Column(db.String(120))
     state = db.Column(db.String(120))
     address = db.Column(db.String(120))
@@ -56,11 +56,13 @@ class Venue(db.Model):
     # relationships between Venue and show
     show_ven = db.relationship('Show', backref='Venue', lazy=True)
 
+
+
 class Artist(db.Model):
     __tablename__ = 'Artist'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String())
+    name = db.Column(db.String(), nullable=False, unique=True)
     city = db.Column(db.String(120))
     state = db.Column(db.String(120))
     phone = db.Column(db.String(120))
@@ -83,7 +85,6 @@ class Show(db.Model):
     venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), primary_key=True)
     artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), primary_key=True)
     start_time = db.Column(db.DateTime, nullable=False) 
-
 
 
 #----------------------------------------------------------------------------#
@@ -114,6 +115,7 @@ def index():
 
 @app.route('/venues')
 def venues():
+
     # Getting list of states and cities
     venue_groups = db.session.query(Venue.city, Venue.state).group_by(Venue.city, Venue.state).all()
     print(venue_groups)
