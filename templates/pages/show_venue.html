@@ -74,12 +74,13 @@
 		{% endfor %}
 	</div>
 </section>
-<form class="form" method="delete" action="/venues/{{venue.id}}/delete">
+<form class="form" method="delete" action="/venues/{{venue.id}}">
     <input type="submit" value="Delete Venue" class="btn btn-primary btn-lg btn-block">
 </form>
 <form class="form" method="post" action="/venues/{{venue.id}}/edit">
     <input type="submit" value="Edit Venue" class="btn btn-primary btn-lg btn-block">
 </form>
+<button class="edit-button" data-id="{{ venue.id }}">Edit Venue</button>
 
 {% endblock %}
 
