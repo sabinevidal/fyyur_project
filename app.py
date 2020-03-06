@@ -217,7 +217,7 @@ def show_venue(venue_id):
     details = {           
         "id": venue.id,
         "name": venue.name,
-        "genres": venue.genres.split(';'),
+        "genres": venue.genres,
         "address": venue.address,
         "city": venue.city,
         "state": venue.state,
@@ -226,7 +226,7 @@ def show_venue(venue_id):
         "facebook_link": venue.facebook_link,
         "seeking_talent": venue.seeking_talent,
         "seeking_description": venue.seeking_description,
-        #"image_link": venue.image_link,
+        "image_link": venue.image_link,
         "past_shows": past_shows(),
         "upcoming_shows": upcoming_shows(),
         "past_shows_count": len(past_shows()),
@@ -286,23 +286,25 @@ def create_venue_submission():
 
 #  Delete Venue
 #  ----------------------------------------------------------------
-
-@app.route('/venues/<venue_id>/delete', methods=['DELETE'])
+#TODO: Get button working
+@app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
     try: 
         # get venue, delete it, commit
-        venue = Venue.query.filter(Venue.id == venue_id).first()
-        name = venue.name
+        venue = Venue.query.get(venue_id)
+        name = Venue.name
         
-        if len(venue.shows) != 0:
-            flash("Watch out, this venue has shows linked to it!")
-            return redirect('/venues/<venue_id>/shows')
+        # if len(venue.shows) != 0:
+        #     flash("Watch out, this venue has shows linked to it!")
+        #     return redirect('/venues/<venue_id>/shows')
+        # Venue.query.filter_by(id == venue_id).delete()
         print(venue)
-        db.session.delete()
+        db.session.delete(venue)
         db.session.commit()
         
         #flash if successful
         flash('Venue ' + name + 'was successfully deleted.')
+        return render_template('/venues/')
     except: 
         print("Oh dear! ", sys.exc_info()[0], "occured.")
         
@@ -314,7 +316,7 @@ def delete_venue(venue_id):
   # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
   # clicking that button delete it from the db then redirect the user to the homepage
  
-    return redirect('/venues')
+    return redirect('/venues/')
 
 #  Artists
 #  ----------------------------------------------------------------
@@ -380,7 +382,7 @@ def show_artist(artist_id):
         "facebook_link": artist.facebook_link,
         "seeking_venue": artist.seeking_venue,
         "seeking_description": artist.seeking_description,
-        #"image_link": artist.image_link,
+        "image_link": artist.image_link,
         "past_shows": past_shows(),
         "upcoming_shows": upcoming_shows(),
         "past_shows_count": len(past_shows()),
@@ -435,7 +437,7 @@ def create_artist_form():
 def create_artist_submission():
     form = ArtistForm(request.form)
     try:
-        new_artist = Artist(
+        
             name=request.form.get('name'),
             city=request.form.get('city'),
             state=request.form.get('state'),
@@ -471,6 +473,7 @@ def create_artist_submission():
 #  ----------------------------------------------------------------
 @app.route('/artists/<int:artist_id>/edit', methods=['GET'])
 def edit_artist(artist_id):
+    
     form = ArtistForm()
   
     # get artist by ID
@@ -516,22 +519,22 @@ def edit_artist_submission(artist_id):
         artist = Artist.query.filter_by(id=artist_id).first()
 
         # load form data from user input
-        artist.form.name = form.name.data
-        artist.form.city = form.city.data
-        artist.form.state = form.state.data
-        artist.form.genres = form.genres.data
-        artist.form.phone = form.phone.data
-        artist.form.website = form.website.data
-        artist.form.facebook_link = form.facebook_link.data
-        artist.form.seeking_venue = True if form.seeking_venue.data == 'Yes' else False
-        artist.form.seeking_description = form.seeking_description.data
-        artist.form.image_link = form.image_link.data
+        artist.name = form.name.data
+        artist.city = form.city.data
+        artist.state = form.state.data
+        artist.genres = form.genres.data
+        artist.phone = form.phone.data
+        artist.website = form.website.data
+        artist.facebook_link = form.facebook_link.data
+        artist.seeking_venue = True if form.seeking_venue.data == 'Yes' else False
+        artist.seeking_description = form.seeking_description.data
+        artist.image_link = form.image_link.data
         # commit changes, flash success message
         db.session.commit()
         flash('Artist ' + request.form['name'] + ' was successfully updated!')
     except: 
         db.session.rollback()
-        flash('An error occurred. Artist ' + request.form['name'] + ' couldn\'t be updated.')
+        flash('A post error occurred. Artist ' + request.form['name'] + ' couldn\'t be updated.')
     finally:
         db.session.close()
 
@@ -543,40 +546,44 @@ def edit_artist_submission(artist_id):
 
 @app.route('/venues/<int:venue_id>/edit', methods=['GET'])
 def edit_venue(venue_id):
-    form = VenueForm()
+    try: 
+        form = VenueForm()
   
-    # get venue by ID
-    venue = Venue.query.filter_by(id=venue_id).first()
-  
-    # venue data
-    venue={
-        "id": venue.id,
-        "name": venue.name,
-        "genres": venue.genres,
-        "city": venue.city,
-        "state": venue.state,
-        "address": venue.address,
-        "phone": venue.phone,
-        "website": venue.website,
-        "facebook_link": venue.facebook_link,
-        "seeking_talent": venue.seeking_talent,
-        "seeking_description": venue.seeking_description,
-        "image_link": venue.image_link
-    }
-  
-    # populate form with current values from venue with ID <venue_id>
-    form.name.process_data(venue['name'])
-    form.city.process_data(venue['city'])
-    form.state.process_data(venue['state'])
-    form.address.process_data(venue['address'])
-    form.genres.process_data(venue['genres'])
-    form.phone.process_data(venue['phone'])
-    form.website.process_data(venue['website'])
-    form.facebook_link.process_data(venue['facebook_link'])
-    form.seeking_talent.process_data(venue['seeking_talent'])
-    form.seeking_description.process_data(venue['seeking_description'])
-    form.image_link.process_data(venue['image_link'])
- 
+        # get venue by ID
+        venue = Venue.query.filter_by(id=venue_id).first()
+    
+        # venue data
+        venue={
+            "id": venue.id,
+            "name": venue.name,
+            "genres": venue.genres,
+            "city": venue.city,
+            "state": venue.state,
+            "address": venue.address,
+            "phone": venue.phone,
+            "website": venue.website,
+            "facebook_link": venue.facebook_link,
+            "seeking_talent": venue.seeking_talent,
+            "seeking_description": venue.seeking_description,
+            "image_link": venue.image_link
+        }
+    
+        # populate form with current values from venue with ID <venue_id>
+        form.name.process_data(venue['name'])
+        form.city.process_data(venue['city'])
+        form.state.process_data(venue['state'])
+        form.address.process_data(venue['address'])
+        form.genres.process_data(venue['genres'])
+        form.phone.process_data(venue['phone'])
+        form.website.process_data(venue['website'])
+        form.facebook_link.process_data(venue['facebook_link'])
+        form.seeking_talent.process_data(venue['seeking_talent'])
+        form.seeking_description.process_data(venue['seeking_description'])
+        form.image_link.process_data(venue['image_link'])
+    
+    except:
+        flash('A get error occurred. Venue ' + request.form['name'] + ' couldn\'t be updated.')
+    
     return render_template('forms/edit_venue.html', form=form, venue=venue)
 
 
@@ -591,23 +598,23 @@ def edit_venue_submission(venue_id):
         venue = Venue.query.filter_by(id=venue_id).first()
 
         # load form data from user input
-        venue.form.name = form.name.data
-        venue.form.city = form.city.data
-        venue.form.state = form.state.data
-        venue.form.address = form.address.data
-        venue.form.genres = form.genres.data
-        venue.form.phone = form.phone.data
-        venue.form.website = form.website.data
-        venue.form.facebook_link = form.facebook_link.data
-        venue.form.seeking_talent = True if form.seeking_talent.data == 'Yes' else False
-        venue.form.seeking_description = form.seeking_description.data
-        venue.form.image_link = form.image_link.data
+        venue.name = form.name.data
+        venue.city = form.city.data
+        venue.state = form.state.data
+        venue.address = form.address.data
+        venue.genres = form.genres.data
+        venue.phone = form.phone.data
+        venue.website = form.website.data
+        venue.facebook_link = form.facebook_link.data
+        venue.seeking_talent = True if form.seeking_talent.data == 'Yes' else False
+        venue.seeking_description = form.seeking_description.data
+        venue.image_link = form.image_link.data
         # commit changes, flash success message
         db.session.commit()
         flash('Venue ' + request.form['name'] + ' was successfully updated!')
     except: 
         db.session.rollback()
-        flash('An error occurred. Venue ' + request.form['name'] + ' couldn\'t be updated.')
+        flash('A post error occurred. Venue ' + request.form['name'] + ' couldn\'t be updated.')
     finally:
         db.session.close()
 

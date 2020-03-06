@@ -82,7 +82,7 @@
     <!-- delete button using -->
    
 
-   <form class="form btn-group delete-button" method="delete" action="/venues/{{venue.id}}/delete">
+   <form class="form btn-group delete-button" method="delete" action="/venues/{{venue.id}}">
             <button id ="venue-delete" data-id="{{venue.id}}" class="btn btn-secondary">Delete Venue</button>
     </form>
 </div>
@@ -90,9 +90,9 @@
     
     const dBtn = document.getElementById("venue-delete");
     dBtn.onclick = function (e) {
-        const venueID = e.target.dataset['id'];
+        const venue_id = e.target.dataset['id'];
         console.log( venueID );
-        fetch('/venues/{{venue.id}}/delete', {
+        fetch('/venues/' + venue.id, {
             method: 'DELETE',
         }).then( function() { window.location.href = '/venues';
         }).catch( function (error) {
