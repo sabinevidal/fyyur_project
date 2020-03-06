@@ -15,6 +15,7 @@ from forms import *
 from flask_migrate import Migrate
 from sqlalchemy.dialects.postgresql import JSON
 import sys
+from sqlalchemy import desc
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -53,6 +54,9 @@ class Venue(db.Model):
     past_shows = db.Column(db.Integer, nullable=True)
     past_shows_count = db.Column(db.Integer)
     
+    # created time
+    created = db.Column(db.DateTime, default=datetime.now())
+    
     # relationships between Venue and show
     show_ven = db.relationship('Show', backref='Venue', lazy=True)
 
@@ -72,6 +76,9 @@ class Artist(db.Model):
     seeking_description = db.Column(db.String(200), nullable=True)
     upcoming_shows = db.Column(db.Integer, nullable=True)
     past_shows = db.Column(db.Integer, nullable=True)
+
+    # created time
+    created = db.Column(db.DateTime, default=datetime.now())
     
     # relationships between Artist and Show
     show_art = db.relationship('Show', backref='Artist', lazy=True)
@@ -249,26 +256,27 @@ def create_venue_submission():
     # Create venue with user input
     # Return: If a venue is created redirect to home page and flash success message, 
     #   if fails then redirect to create form with fail message
-    form = VenueForm(request.form)
-    # if form.validate():
     try:
-        new_venue = Venue(
-            ## used request.form.get('key') instead of request.form['key'] to avoid KeyError
-            name=request.form.get('name'),
-            city=request.form.get('city'),
-            state=request.form.get('state'),
-            address=request.form.get('address'),
-            phone=request.form.get('phone'),
-            facebook_link=request.form.get('facebook_link'),
-            website=request.form.get('website'),
-            genres=request.form.get("genres"),
-            seeking_talent=request.form.get('seeking_talent'),
-            seeking_description=request.form.get('seeking_description')
-        )
+        form = VenueForm()
+        name = form.name.data
+        city = form.city.data
+        state = form.state.data
+        address = form.address.data
+        phone = form.phone.data
+        facebook_link = form.facebook_link.data
+        website = form.website.data
+        genres = form.genres.data
+        image_link = form.image_link.data
         # Checking if venue is seeking an artist
-        new_venue.seeking_talent = True if request.form['seeking_talent'] == 'Yes' else False
-        new_venue.seeking_description = request.form['seeking_description']
-        db.session.add(new_venue)
+        seeking_talent = True if form.seeking_talent.data == 'Yes' else False
+        seeking_description = form.seeking_description.data
+
+        # Create new venue from data
+        venue = Venue(name=name,city=city, state=state, address=address, 
+                        phone=phone, facebook_link=facebook_link, website=website,
+                        genres=genres, image_link=image_link, 
+                        seeking_talent=seeking_talent, seeking_description=seeking_description)
+        db.session.add(venue)
         db.session.commit()
         # on successful db insert, flash success
         flash('Venue ' + request.form['name'] + ' was successfully listed!')
@@ -435,24 +443,28 @@ def create_artist_form():
 
 @app.route('/artists/create', methods=['POST'])
 def create_artist_submission():
-    form = ArtistForm(request.form)
+    
     try:
-        
-            name=request.form.get('name'),
-            city=request.form.get('city'),
-            state=request.form.get('state'),
-            phone=request.form.get('phone'),
-            facebook_link=request.form.get('facebook_link'),
-            website=request.form.get('website'),
-            genres=request.form.get('genres'),
-            seeking_venue=request.form.get('seeking_venue'),
-            seeking_description=request.form.get('seeking_description')
-        )
+        form = ArtistForm()
+        name = form.name.data 
+        city = form.city.data
+        state = form.state.data
+        phone = form.phone.data
+        facebook_link = form.facebook_link.data
+        website = form.website.data
+        genres = form.genres.data
+        image_link = form.image_link.data
         # Checking if artist is seeking venue
-        new_artist.seeking_venue = True if request.form['seeking_venue'] == 'Yes' else False
-        new_artist.seeking_description = request.form['seeking_description']
-        
-        db.session.add(new_artist)
+        seeking_venue = True if form.seeking_venue.data == 'Yes' else False
+        seeking_description = form.seeking_description.data
+
+        #create new artist from data
+        artist = Artist(name=name, city=city, state=state, phone=phone, 
+                            facebook_link=facebook_link, website=website, 
+                            image_link=image_link, seeking_venue=seeking_venue, 
+                            seeking_description=seeking_description, genres=genres)
+    
+        db.session.add(artist)
         db.session.commit()
         # on successful db insert, flash success
         flash('Artist ' + request.form['name'] + ' was successfully listed!')   
@@ -683,6 +695,27 @@ def create_show_submission():
         db.session.close()
        
     return render_template('pages/home.html')
+
+#----------------------------------------------------------------------------#
+# Most recent venues and artists
+#----------------------------------------------------------------------------#
+
+@app.route('/recent')
+def recent_adds():
+    
+    #call artists
+    artists = db.session.query(Artist).all()
+    #create list of recent additions
+    allrecent = []
+    #Loop through artists and append result to allrecent list
+    for artist in artists:
+        allrecent.append({
+             #select artists with the most recent creation times, limit at 5. 
+            "recentArtist": artist.query.order_by(desc('created')).limit(5)
+        })
+    # return render_template('pages/home.html') 
+   
+    
 
 # ----------------------------------------------------------------- 
 # Error handlers
