@@ -370,9 +370,9 @@ def show_artist(artist_id):
         for show in shows:
             if show.start_time <= datetime.now():
                 past.append({
-                    "venue__id": show.venue__id,
-                    "venue__name": show.venue_.name,
-                    "start_time": str(show.start_time)
+                    "venue_id": show.venue_id,
+                    "venue_name": Venue.query.filter_by(id=show.venue_id).first().name,
+                    "start_time": format_datetime(str(show.start_time))
                 })
         return past
     
