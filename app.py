@@ -435,8 +435,12 @@ def search_artists():
 
 @app.route('/artists/create', methods=['GET'])
 def create_artist_form():
+
+    # Create artist with user input
+    # Return: If an artist is created redirect to home page and flash success message, 
+    #   if fails then flash fail message
     form = ArtistForm()
-    
+
     return render_template('forms/new_artist.html', form=form)
 
 @app.route('/artists/create', methods=['POST'])
