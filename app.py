@@ -54,11 +54,11 @@ class Venue(db.Model):
     past_shows = db.Column(db.Integer, nullable=True)
     past_shows_count = db.Column(db.Integer)
     
-    # created time
-    #created = db.Column(db.DateTime, default=datetime.now())
-    
     # relationships between Venue and show
     show_ven = db.relationship('Show', cascade="all,delete", backref='Venue', lazy=True)
+
+    ## created time for recent entries attempt
+    #created = db.Column(db.DateTime, default=datetime.now())
 
 
 class Artist(db.Model):
@@ -77,12 +77,12 @@ class Artist(db.Model):
     seeking_description = db.Column(db.String(200), nullable=True)
     upcoming_shows = db.Column(db.Integer, nullable=True)
     past_shows = db.Column(db.Integer, nullable=True)
-
-    # created time
-    created = db.Column(db.DateTime, default=datetime.now())
     
     # relationships between Artist and Show
     show_art = db.relationship('Show', cascade="all,delete", backref='Artist', lazy=True)
+
+    ## created time for recent entries attempt
+    # created = db.Column(db.DateTime, default=datetime.now())
 
    
 class Show(db.Model):
@@ -726,7 +726,7 @@ def create_show_submission():
     return render_template('pages/home.html')
 
 #----------------------------------------------------------------------------#
-# Most recent venues and artists
+# Attempted: Most recent venues and artists for recent entries
 #----------------------------------------------------------------------------#
 
 # @app.route('/artists/recent')
