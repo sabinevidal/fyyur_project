@@ -81,10 +81,12 @@
     </form>
     <!-- delete button using -->
    
-
-   <form class="form btn-group delete-button" method="delete" action="/venues/{{venue.id}}">
+    <a href="/venues/{{ venue.id }}/delete">
+        <button class="btn btn--delete btn-lg">Delete</button>
+    </a>
+   <!-- <form class="form btn-group delete-button" method="delete" action="/venues/{{venue.id}}">
             <button id ="venue-delete" data-id="{{venue.id}}" class="btn btn-secondary">Delete Venue</button>
-    </form>
+    </form> -->
 </div>
  <script> 
     

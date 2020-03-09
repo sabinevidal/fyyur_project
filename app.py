@@ -60,6 +60,9 @@ class Venue(db.Model):
     # relationships between Venue and show
     show_ven = db.relationship('Show', backref='Venue', lazy=True)
 
+    def __init__(self, genres):
+        self._genres = genres
+
 class Artist(db.Model):
     __tablename__ = 'Artist'
 
@@ -111,7 +114,7 @@ app.jinja_env.filters['datetime'] = format_datetime
 # Controllers.
 #----------------------------------------------------------------------------#
 
-@app.route('/', methods=['GET', 'POST', 'DELETE'])
+@app.route('/', methods=['GET', 'POST'])
 def index():
   return render_template('pages/home.html')
 
@@ -295,18 +298,18 @@ def create_venue_submission():
 #  Delete Venue
 #  ----------------------------------------------------------------
 #TODO: Get button working
-@app.route('/venues/<venue_id>', methods=['DELETE'])
+@app.route('/venues/<venue_id>/delete', methods=['GET'])
 def delete_venue(venue_id):
     try: 
         # get venue, delete it, commit
-        venue = Venue.query.get(venue_id)
+        venue = db.session.query(Venue).filter(Venue.id == venue_id).first()
         name = Venue.name
         
-        # if len(venue.shows) != 0:
-        #     flash("Watch out, this venue has shows linked to it!")
-        #     return redirect('/venues/<venue_id>/shows')
-        # Venue.query.filter_by(id == venue_id).delete()
-        print(venue)
+        if len(venue.shows) != 0:
+            flash("Watch out, this venue has shows linked to it!")
+            return redirect('/venues/<venue_id>/shows')
+        # # Venue.query.filter_by(id == venue_id).delete()
+        # print(venue)
         db.session.delete(venue)
         db.session.commit()
         
@@ -324,7 +327,7 @@ def delete_venue(venue_id):
   # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
   # clicking that button delete it from the db then redirect the user to the homepage
  
-    return redirect('/venues/')
+    return redirect('/venues')
 
 #  Artists
 #  ----------------------------------------------------------------
