@@ -16,6 +16,7 @@ from flask_migrate import Migrate
 from sqlalchemy.dialects.postgresql import JSON
 import sys
 from sqlalchemy import desc
+from datetime import datetime
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -28,7 +29,6 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 db.create_all()
 
-# TODO: connect to a local postgresql database
 
 #----------------------------------------------------------------------------#
 # Models.
@@ -55,13 +55,11 @@ class Venue(db.Model):
     past_shows_count = db.Column(db.Integer)
     
     # created time
-    created = db.Column(db.DateTime, default=datetime.now())
+    #created = db.Column(db.DateTime, default=datetime.now())
     
     # relationships between Venue and show
-    show_ven = db.relationship('Show', backref='Venue', lazy=True)
+    show_ven = db.relationship('Show', cascade="all,delete", backref='Venue', lazy=True)
 
-    def __init__(self, genres):
-        self._genres = genres
 
 class Artist(db.Model):
     __tablename__ = 'Artist'
@@ -70,7 +68,7 @@ class Artist(db.Model):
     name = db.Column(db.String(), nullable=False)
     city = db.Column(db.String(120), nullable=False)
     state = db.Column(db.String(120), nullable=False)
-    phone = db.Column(db.String(120))
+    phone = db.Column(db.String(120), nullable=False)
     genres = db.Column(JSON)
     image_link = db.Column(db.String(500), nullable=True)
     facebook_link = db.Column(db.String(120))
@@ -84,7 +82,7 @@ class Artist(db.Model):
     created = db.Column(db.DateTime, default=datetime.now())
     
     # relationships between Artist and Show
-    show_art = db.relationship('Show', backref='Artist', lazy=True)
+    show_art = db.relationship('Show', cascade="all,delete", backref='Artist', lazy=True)
 
    
 class Show(db.Model):
@@ -106,7 +104,7 @@ def format_datetime(value, format='medium'):
         format = "EEEE MMMM, d, y 'at' h:mma"
     elif format == 'medium':
         format = "EE MM, dd, y h:mma"
-    return babel.dates.format_datetime(date, format)
+    return babel.dates.format_datetime(date, format, locale='en')
 
 app.jinja_env.filters['datetime'] = format_datetime
 
@@ -297,37 +295,34 @@ def create_venue_submission():
 
 #  Delete Venue
 #  ----------------------------------------------------------------
-#TODO: Get button working
-@app.route('/venues/<venue_id>/delete', methods=['GET'])
+
+@app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
-    try: 
-        # get venue, delete it, commit
-        venue = db.session.query(Venue).filter(Venue.id == venue_id).first()
-        name = Venue.name
-        
-        if len(venue.shows) != 0:
-            flash("Watch out, this venue has shows linked to it!")
-            return redirect('/venues/<venue_id>/shows')
-        # # Venue.query.filter_by(id == venue_id).delete()
-        # print(venue)
+    
+    try:
+        # get venue, delete it, commit to db
+        venue = Venue.query.filter(Venue.id == venue_id).first()
+        name = venue.name
+
         db.session.delete(venue)
         db.session.commit()
-        
-        #flash if successful
-        flash('Venue ' + name + 'was successfully deleted.')
-        return render_template('/venues/')
-    except: 
-        print("Oh dear! ", sys.exc_info()[0], "occured.")
-        
+
+        # flash if successful
+        flash('Venue ' + name + ' was successfully deleted.')
+    except:
+
+        print("Oh dear!", sys.exc_info()[0], "occured.")
+
+        # if error, rollback session and flash error
         db.session.rollback()
-        flash("An error occured. Venue " + name + "wasn't deleted.")
+
+        flash('An error occurred. Venue ' + name + ' wasn\'t deleted.')
     finally:
         db.session.close()
 
-  # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
-  # clicking that button delete it from the db then redirect the user to the homepage
- 
+    # return success
     return redirect('/venues')
+ 
 
 #  Artists
 #  ----------------------------------------------------------------
@@ -482,6 +477,37 @@ def create_artist_submission():
     finally:
         db.session.close()
     return render_template('pages/home.html')
+
+
+#  Delete Artist
+#  ----------------------------------------------------------------
+
+@app.route('/artists/<artist_id>', methods=['DELETE'])
+def delete_artist(artist_id):
+    
+    try:
+        # get artist, delete it, commit to db
+        artist = Artist.query.filter(Artist.id == artist_id).first()
+        name = artist.name
+
+        db.session.delete(artist)
+        db.session.commit()
+
+        # flash if successful
+        flash('Artist ' + name + ' was successfully deleted.')
+    except:
+
+        print("Oh dear!", sys.exc_info()[0], "occured.")
+
+        # if error, rollback session and flash error
+        db.session.rollback()
+
+        flash('An error occurred. Artist ' + name + ' wasn\'t deleted.')
+    finally:
+        db.session.close()
+
+    # return success
+    return redirect('/artists')
 
 
 #  Update Artist
@@ -703,20 +729,21 @@ def create_show_submission():
 # Most recent venues and artists
 #----------------------------------------------------------------------------#
 
-@app.route('/recent')
-def recent_adds():
+# @app.route('/artists/recent')
+# def recent_adds():
     
-    #call artists
-    artists = db.session.query(Artist).all()
-    #create list of recent additions
-    allrecent = []
-    #Loop through artists and append result to allrecent list
-    for artist in artists:
-        allrecent.append({
-             #select artists with the most recent creation times, limit at 5. 
-            "recentArtist": artist.query.order_by(desc('created')).limit(5)
-        })
-    # return render_template('pages/home.html') 
+#     #call artists
+#     artists = db.session.query(Artist).all()
+#     #create list of recent additions
+#     allrecent = []
+#     #Loop through artists and append result to allrecent list
+#     for artist in artists:
+#         allrecent.append({
+#              #select artists with the most recent creation times, limit at 5. 
+#             "recentArtist": artist.query.order_by(desc('created')).limit(5)
+#         })
+#     print(allrecent)
+#     return render_template('/pages/home.html', allrecent=allrecent, artist=artist) 
    
     
 

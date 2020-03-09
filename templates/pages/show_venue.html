@@ -75,32 +75,34 @@
 	</div>
 </section>
 <!-- Edit and delete buttons -->
-<div class="btn-group-sm" role="group" aria-label="Edits">
+<div class="edit-buttons" role="group" aria-label="Edits">
     <form method="get" action="/venues/{{venue.id}}/edit" class="btn-group">
-        <button type="submit" class="btn btn-secondary" data-id="{{ venue.id }}">Edit Venue</button>
+        <button type="submit" class="btn btn-secondary"  data-id="{{ venue.id }}" style="width: 150px; height:34px;">Edit Venue</button>
     </form>
-    <!-- delete button using -->
-   
-    <a href="/venues/{{ venue.id }}/delete">
-        <button class="btn btn--delete btn-lg">Delete</button>
-    </a>
-   <!-- <form class="form btn-group delete-button" method="delete" action="/venues/{{venue.id}}">
-            <button id ="venue-delete" data-id="{{venue.id}}" class="btn btn-secondary">Delete Venue</button>
-    </form> -->
+    <!-- delete button  -->
+
+    <button type="submit" onclick="deleteClickHandler(this)" data-id="{{ venue.id }}" class="btn btn-secondary"
+        style="width: 150px; height:34px;">
+            Delete Venue
+    </button>
+
 </div>
- <script> 
+<script> 
     
-    const dBtn = document.getElementById("venue-delete");
-    dBtn.onclick = function (e) {
-        const venue_id = e.target.dataset['id'];
-        console.log( venueID );
-        fetch('/venues/' + venue.id, {
-            method: 'DELETE',
-        }).then( function() { window.location.href = '/venues';
-        }).catch( function (error) {
-            console.log(error);
+    function deleteClickHandler(e) {
+        console.log('clicked')
+        const venueId = e.dataset.id;
+        fetch('/venues/' + venueId, {
+            method: 'DELETE'
         })
+            .then(function () {
+                window.location.href = `/venues`;
+            })
+            .catch(function (e) {
+                console.log('error', e)
+            })
     }
+
 </script>
 {% endblock %}
 
