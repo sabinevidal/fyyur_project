@@ -2,6 +2,7 @@ from datetime import datetime
 from flask_wtf import Form
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField
 from wtforms.validators import DataRequired, AnyOf, URL
+import enum
 
 
 class ShowForm(Form):
@@ -131,6 +132,11 @@ class VenueForm(Form):
     seeking_description = StringField(
         'seeking_description'
     )
+    def validate_genres(self, genres):
+            genre_choices = GenreEnum.choices()
+            for genre in genres.data:
+                if genre not in genre_choices:
+                    raise ValidationError('This is not an available genre')
 
 
 class ArtistForm(Form):
@@ -202,13 +208,6 @@ class ArtistForm(Form):
     image_link = StringField(
         'image_link'
     )
-    
-    def validate_genres(self, genres):
-            genre_choices = GenreEnum.choices()
-            for genre in genres.data:
-                if genre not in genre_choices:
-                    raise ValidationError('This is not an available genre')
-                    
     genres = SelectMultipleField(
 
         'genres', validators=[DataRequired()],
@@ -250,6 +249,11 @@ class ArtistForm(Form):
     seeking_description = StringField(
         'seeking_description'
     )
+    def validate_genres(self, genres):
+            genre_choices = GenreEnum.choices()
+            for genre in genres.data:
+                if genre not in genre_choices:
+                    raise ValidationError('This is not an available genre')
     
 
 # TODO IMPLEMENT NEW ARTIST FORM AND NEW SHOW FORM
